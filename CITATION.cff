@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use adaptcompile in your research, please cite this software."
+title: "adaptcompile"
+type: software
+version: 0.1.0
+date-released: 2026-09-05
+license: MIT
+authors:
+  - name: "Rebecca Ramnauth"
+repository-code: "https://github.com/rramnauth2220/adaptcompile"
