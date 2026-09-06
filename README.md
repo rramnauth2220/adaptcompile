@@ -8,7 +8,7 @@ represented, measured, and compared independently of the training framework used
 produce it. It provides the representation and analysis foundation on which future
 adaptation-compilation functionality can be built.
 
-See the concise [architecture overview](docs/architecture.md) for how the objects fit
+See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
 together.
 
 ## Installation
@@ -67,7 +67,7 @@ print(study.best("accuracy").program.name)
 print(study.best("accuracy").delta.to_dict())
 ```
 
-More runnable examples are available in [`examples/`](examples/).
+More runnable examples are available in [examples](https://github.com/rramnauth2220/adaptcompile/tree/main/examples).
 
 ## Core objects
 
