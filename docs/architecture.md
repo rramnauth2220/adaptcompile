@@ -20,7 +20,14 @@ ModelContext + LearningEpisode + ProgramSpec
                                 GeometryPredictor
                                          |
                                          v
-                                GeometryPrediction
+                              GeometryPrediction(s)
+                                         |
+                               SelectionObjective
+                                         |
+                                  ProgramSelector
+                                         |
+                                         v
+                                 ProgramSelection
 ```
 
 - `ModelContext` identifies the pre-adaptation model, revision, and base state.
@@ -43,11 +50,16 @@ ModelContext + LearningEpisode + ProgramSpec
   data and predicting from target-free feature mappings.
 - `GeometryPrediction` retains candidate identity, raw target prediction, and
   reconstructed post-adaptation geometry.
+- `SelectionObjective` states explicit weighted maximize/minimize terms and hard
+  constraints over predicted post-adaptation geometry.
+- `ProgramSelector` evaluates a finite candidate set for one model and episode.
+- `ProgramSelection` stores all ranked candidate scores and the best feasible choice,
+  if one exists.
 
 Names and metadata remain descriptive annotations. Stable identity is explicit:
 model studies use `(model_id, revision, base_state_id)`, episodes may supply an
 `episode_id`, and program/family fingerprints derive from their semantic parameters.
 
 Descriptor extraction is external: the package validates and joins numeric mappings
-but does not inspect models or datasets. Version 0.3 adds prediction and stops before
-program selection or adaptation execution.
+but does not inspect models or datasets. Version 0.4 adds explicit program selection
+and stops before program synthesis or adaptation execution.

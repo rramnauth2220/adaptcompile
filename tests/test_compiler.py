@@ -69,10 +69,15 @@ def _all_descriptors(result: AdaptationResult) -> dict[str, object]:
 
 def test_compiler_public_api_is_small_and_not_root_reexported() -> None:
     assert set(compiler.__all__) == {
+        "CandidateScore",
         "CompilerDataset",
         "CompilerRecord",
+        "GeometryConstraint",
         "GeometryPrediction",
         "GeometryPredictor",
+        "ProgramSelection",
+        "ProgramSelector",
+        "SelectionObjective",
         "build_compiler_dataset",
     }
     assert compiler.CompilerRecord is CompilerRecord

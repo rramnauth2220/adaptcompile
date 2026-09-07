@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaptcompile"
-version = "0.3.0"
-description = "Represent, measure, compare, and predict model adaptation geometry."
+version = "0.4.0"
+description = "Represent, measure, predict, and select model adaptations under explicit objectives."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"

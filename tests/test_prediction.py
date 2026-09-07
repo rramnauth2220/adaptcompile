@@ -33,10 +33,15 @@ def _record(*, target_kind: str = "delta") -> CompilerRecord:
 
 def test_prediction_public_api_is_explicit_and_not_root_reexported() -> None:
     assert set(compiler.__all__) == {
+        "CandidateScore",
         "CompilerDataset",
         "CompilerRecord",
+        "GeometryConstraint",
         "GeometryPrediction",
         "GeometryPredictor",
+        "ProgramSelection",
+        "ProgramSelector",
+        "SelectionObjective",
         "build_compiler_dataset",
     }
     assert predictor_module.__all__ == ["RidgeGeometryPredictor"]

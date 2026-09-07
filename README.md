@@ -1,10 +1,10 @@
 # adaptcompile
 
 `adaptcompile` is a model-agnostic Python library for representing, measuring,
-comparing, and predicting model adaptation.
+predicting, and selecting model adaptations.
 
 `adaptcompile` treats model adaptation as a behavioral transformation that can be
-represented, measured, compared, and predicted independently of the training
+represented, measured, predicted, and selected independently of the training
 framework used to produce it.
 
 See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
@@ -134,16 +134,36 @@ print(prediction.predicted_geometry)
 See [prediction](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/prediction.md)
 for target semantics and delta reconstruction.
 
+## Selecting a program
+
+Selection uses predicted post-adaptation geometry, an explicit weighted objective,
+and optional hard constraints:
+
+```python
+from adaptcompile.compiler import GeometryConstraint, SelectionObjective
+from adaptcompile.compiler.selectors import LinearUtilitySelector
+
+objective = SelectionObjective(
+    maximize={"gain": 1.0},
+    minimize={"cost": 0.2},
+    constraints=(GeometryConstraint("retention", minimum=0.8),),
+)
+selection = LinearUtilitySelector().select(predictions, objective)
+```
+
+See [selection](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/selection.md)
+for ranking, feasibility, and tie semantics.
+
 ## What adaptcompile does not do
 
 - It does not train or load adapted models.
 - It does not implement LoRA or replace PEFT, TRL, or another training framework.
-- It does not select adaptation programs or execute adaptations.
+- It does not infer objectives, synthesize programs, or execute adaptations.
 - It has no mandatory ML-framework or numerical-stack dependencies; pandas and the
   scikit-learn reference predictor are optional extras.
 
 ## Status
 
-`0.3.0` adds target-free prediction of adaptation geometry from compiler-ready
-features. The API is usable but may evolve during the `0.x` series. The package does
-not extract features, execute adaptations, or select programs.
+`0.4.0` adds explicit selection among predicted candidate adaptations. The API is
+usable but may evolve during the `0.x` series. The package does not infer objectives,
+extract features, synthesize programs, or execute adaptations.

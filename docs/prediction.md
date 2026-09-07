@@ -67,4 +67,5 @@ lightweight demonstration of the public interface, not a prescribed scientific m
 architecture. It performs no scaling, feature selection, splitting, tuning, or
 uncertainty estimation.
 
-Program selection and adaptation execution remain outside version 0.3.
+Program selection is a separate layer described in [selection](selection.md).
+Prediction itself does not select or execute an adaptation.

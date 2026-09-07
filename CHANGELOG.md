@@ -2,6 +2,17 @@
 
 All notable public changes to this project are documented here.
 
+## 0.4.0 - 2026-09-07
+
+### Added
+
+- Immutable `GeometryConstraint`, `SelectionObjective`, `CandidateScore`, and
+  `ProgramSelection` values.
+- Dependency-free `ProgramSelector` structural protocol.
+- `LinearUtilitySelector` reference implementation.
+- Explicit weighted maximize/minimize objectives and hard feasibility constraints.
+- Deterministic candidate ranking with stable input-order tie behavior.
+
 ## 0.3.0 - 2026-09-07
 
 ### Added
