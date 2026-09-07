@@ -110,7 +110,7 @@ for descriptor identities, namespaces, baseline features, and validation rules.
 - It does not train or load models.
 - It does not implement LoRA or replace PEFT, TRL, or another training framework.
 - It does not currently predict outcomes or select adaptation programs.
-- It does not require PyTorch, Transformers, pandas, or any other ML framework.
+- It has no mandatory ML-framework or numerical-stack dependencies; pandas is optional for DataFrame export.
 
 ## Status
 
