@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Sequence
-from typing import TYPE_CHECKING, cast, overload
+from typing import TYPE_CHECKING, overload
 
 from ._validation import nonempty_name
 from .episode import LearningEpisode, _episode_identity_key
@@ -141,7 +141,7 @@ class AdaptationStudy(Sequence[AdaptationResult]):
     def to_dataframe(self) -> DataFrame:
         """Return one row per result with post-adaptation metrics as columns."""
         try:
-            from pandas import DataFrame
+            import pandas as pd
         except ImportError as error:  # pragma: no cover - depends on environment
             raise ImportError(
                 "to_dataframe() requires pandas; install adaptcompile[dataframe]"
@@ -161,7 +161,7 @@ class AdaptationStudy(Sequence[AdaptationResult]):
             }
             row.update({name: result.after[name] for name in metric_names})
             rows.append(row)
-        return cast("DataFrame", DataFrame(rows))
+        return pd.DataFrame(rows)
 
     def _common_metric_names(self) -> tuple[str, ...]:
         expected = tuple(self._results[0].after)

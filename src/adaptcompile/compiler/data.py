@@ -246,7 +246,7 @@ class CompilerDataset(Sequence[CompilerRecord]):
     def to_dataframe(self) -> DataFrame:
         """Return a flattened pandas DataFrame (requires the dataframe extra)."""
         try:
-            from pandas import DataFrame
+            import pandas as pd
         except ImportError as error:  # pragma: no cover - depends on environment
             raise ImportError(
                 "to_dataframe() requires pandas; install adaptcompile[dataframe]"
@@ -272,7 +272,7 @@ class CompilerDataset(Sequence[CompilerRecord]):
                 {f"target.{name}": record.target[name] for name in self.target_names}
             )
             rows.append(row)
-        return cast("DataFrame", DataFrame(rows))
+        return pd.DataFrame(rows)
 
 
 def _descriptor_features(

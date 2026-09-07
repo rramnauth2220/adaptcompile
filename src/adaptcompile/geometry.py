@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Mapping
 from os import PathLike
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from ._validation import score_mapping
 from .errors import ValidationError
@@ -90,12 +90,13 @@ class AdaptationGeometry(Mapping[str, float]):
     def to_dataframe(self) -> DataFrame:
         """Return a one-row pandas DataFrame (requires the ``dataframe`` extra)."""
         try:
-            from pandas import DataFrame
-        except ImportError as error:  # pragma: no cover - depends on environment
+            import pandas as pd
+        except ImportError as exc:
             raise ImportError(
-                "to_dataframe() requires pandas; install adaptcompile[dataframe]"
-            ) from error
-        return cast("DataFrame", DataFrame([self.to_dict()]))
+                "DataFrame export requires pandas. "
+                'Install it with: pip install "adaptcompile[dataframe]"'
+            ) from exc
+        return pd.DataFrame([self.to_dict()])
 
     def _require_comparable(self, other: AdaptationGeometry) -> None:
         if not isinstance(other, AdaptationGeometry):

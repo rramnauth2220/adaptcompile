@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Iterable, Iterator, Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, cast, overload
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from .episode import EpisodeIdentityKey
 from .errors import ValidationError
@@ -141,12 +141,12 @@ class AdaptationDataset(Sequence[AdaptationResult]):
     def to_dataframe(self) -> DataFrame:
         """Return a pandas DataFrame (requires the ``dataframe`` extra)."""
         try:
-            from pandas import DataFrame
+            import pandas as pd
         except ImportError as error:  # pragma: no cover - depends on environment
             raise ImportError(
                 "to_dataframe() requires pandas; install adaptcompile[dataframe]"
             ) from error
-        return cast("DataFrame", DataFrame(self.to_records()))
+        return pd.DataFrame(self.to_records())
 
     def _grouped(
         self, key: Callable[[AdaptationResult], GroupKey]
