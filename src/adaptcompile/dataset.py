@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Hashable, Iterable, Iterator, Sequence
 from typing import TYPE_CHECKING, Any, TypeVar, cast, overload
 
-from .episode import EpisodeIdentityKey, _episode_identity_key
+from .episode import EpisodeIdentityKey
 from .errors import ValidationError
 from .result import AdaptationResult
 
@@ -65,7 +65,7 @@ class AdaptationDataset(Sequence[AdaptationResult]):
 
     def by_episode(self) -> dict[EpisodeIdentityKey, AdaptationDataset]:
         """Group by explicit ID or conservative serialized episode configuration."""
-        return self._grouped(lambda result: _episode_identity_key(result.episode))
+        return self._grouped(lambda result: result.episode.identity_key)
 
     def by_family(self) -> dict[str | None, AdaptationDataset]:
         """Group by conceptual fingerprint; ``None`` retains familyless programs."""

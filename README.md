@@ -8,7 +8,7 @@ represented, measured, and compared independently of the training framework used
 produce it. It provides the representation and analysis foundation on which future
 adaptation-compilation functionality can be built.
 
-See the concise [architecture overview](docs/architecture.md) for how the objects fit
+See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
 together.
 
 ## Installation
@@ -67,7 +67,7 @@ print(study.best("accuracy").program.name)
 print(study.best("accuracy").delta.to_dict())
 ```
 
-More runnable examples are available in [`examples/`](examples/).
+More runnable examples are available in [examples](https://github.com/rramnauth2220/adaptcompile/tree/main/examples).
 
 ## Core objects
 
@@ -84,6 +84,27 @@ Public records support JSON-safe serialization. Dataset-like objects attached to
 `LearningEpisode` are intentionally held by reference and are not serialized.
 DataFrame export is available through the optional `dataframe` extra.
 
+## Compiler-ready data
+
+`adaptcompile.compiler` combines an `AdaptationDataset` with externally supplied
+numeric decision-time descriptors to produce a validated supervised dataset.
+Feature extraction and prediction remain external in 0.2.
+
+```python
+from adaptcompile.compiler import build_compiler_dataset
+
+compiler_data = build_compiler_dataset(
+    observations,
+    episode_descriptors=episode_features,
+    program_descriptors=program_features,
+    target="delta",
+)
+print(compiler_data.feature_names)
+```
+
+See the [compiler data contract](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/compiler-data.md)
+for descriptor identities, namespaces, baseline features, and validation rules.
+
 ## What adaptcompile does not do
 
 - It does not train or load models.
@@ -93,6 +114,6 @@ DataFrame export is available through the optional `dataframe` extra.
 
 ## Status
 
-`0.1.0` is the first public release. The API is usable but may evolve during the
-`0.x` series. Compiler functionality may be added in future releases without adding
-ML-framework dependencies to the representation layer.
+`0.2.0` adds compiler-ready supervised data assembly. The API is usable but may
+evolve during the `0.x` series. The package does not extract features, fit models,
+predict outcomes, or select programs.

@@ -2,6 +2,17 @@
 
 All notable public changes to this project are documented here.
 
+## 0.2.0 - 2026-09-06
+
+### Added
+
+- Compiler-facing supervised data contract under `adaptcompile.compiler`.
+- Namespaced assembly of externally computed decision-time descriptors.
+- Immutable compiler records with preserved identity and run provenance.
+- Explicit after-geometry and delta-geometry targets.
+- Deterministic, validated compiler feature and target schemas.
+- Optional compiler DataFrame export and descriptor-schema metadata.
+
 ## 0.1.0 - 2026-09-05
 
 ### Added

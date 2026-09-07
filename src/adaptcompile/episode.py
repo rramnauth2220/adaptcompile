@@ -59,6 +59,11 @@ class LearningEpisode:
         """Names of the declared evaluation sets, in construction order."""
         return tuple(self.evaluations)
 
+    @property
+    def identity_key(self) -> EpisodeIdentityKey:
+        """Dataset-independent identity used by corpus and compiler joins."""
+        return _episode_identity_key(self)
+
     def to_dict(self) -> dict[str, Any]:
         """Serialize configuration only; dataset contents are intentionally omitted."""
         return {

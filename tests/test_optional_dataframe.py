@@ -8,6 +8,7 @@ import pytest
 from conftest import make_result
 
 from adaptcompile import AdaptationDataset, AdaptationGeometry, AdaptationStudy
+from adaptcompile.compiler import build_compiler_dataset
 
 
 def test_dataframe_methods_fail_clearly_without_pandas(
@@ -22,7 +23,13 @@ def test_dataframe_methods_fail_clearly_without_pandas(
         retention=0.9,
         cost=1.0,
     )
-    values = (geometry, AdaptationStudy([result]), AdaptationDataset([result]))
+    dataset = AdaptationDataset([result])
+    values = (
+        geometry,
+        AdaptationStudy([result]),
+        dataset,
+        build_compiler_dataset(dataset),
+    )
     real_import = builtins.__import__
 
     def without_pandas(
