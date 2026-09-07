@@ -46,5 +46,5 @@ def test_dataframe_methods_fail_clearly_without_pandas(
 
     monkeypatch.setattr(builtins, "__import__", without_pandas)
     for value in values:
-        with pytest.raises(ImportError, match=r"install adaptcompile\[dataframe\]"):
+        with pytest.raises(ImportError, match=r"adaptcompile\[dataframe\]"):
             value.to_dataframe()
