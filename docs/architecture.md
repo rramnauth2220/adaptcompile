@@ -16,6 +16,11 @@ ModelContext + LearningEpisode + ProgramSpec
                                          |
                                          v
                                 CompilerDataset
+                                         |
+                                GeometryPredictor
+                                         |
+                                         v
+                                GeometryPrediction
 ```
 
 - `ModelContext` identifies the pre-adaptation model, revision, and base state.
@@ -34,11 +39,15 @@ ModelContext + LearningEpisode + ProgramSpec
 - `CompilerDataset` stores immutable supervised records assembled from an
   `AdaptationDataset`, external decision-time descriptors, and baseline geometry.
   It requires one consistent, deterministic feature and target schema.
+- `GeometryPredictor` is a dependency-free structural interface for fitting compiler
+  data and predicting from target-free feature mappings.
+- `GeometryPrediction` retains candidate identity, raw target prediction, and
+  reconstructed post-adaptation geometry.
 
 Names and metadata remain descriptive annotations. Stable identity is explicit:
 model studies use `(model_id, revision, base_state_id)`, episodes may supply an
 `episode_id`, and program/family fingerprints derive from their semantic parameters.
 
 Descriptor extraction is external: the package validates and joins numeric mappings
-but does not inspect models or datasets. Version 0.2 stops at the supervised data
-contract; prediction is outside its scope.
+but does not inspect models or datasets. Version 0.3 adds prediction and stops before
+program selection or adaptation execution.

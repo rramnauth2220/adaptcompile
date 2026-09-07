@@ -1,12 +1,11 @@
 # adaptcompile
 
-`adaptcompile` is a model-agnostic Python library for representing and comparing
-observed model-adaptation experiments.
+`adaptcompile` is a model-agnostic Python library for representing, measuring,
+comparing, and predicting model adaptation.
 
 `adaptcompile` treats model adaptation as a behavioral transformation that can be
-represented, measured, and compared independently of the training framework used to
-produce it. It provides the representation and analysis foundation on which future
-adaptation-compilation functionality can be built.
+represented, measured, compared, and predicted independently of the training
+framework used to produce it.
 
 See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
 together.
@@ -21,6 +20,12 @@ DataFrame exports are optional:
 
 ```bash
 pip install "adaptcompile[dataframe]"
+```
+
+The reference prediction implementation is also optional:
+
+```bash
+pip install "adaptcompile[predict]"
 ```
 
 For contributor setup:
@@ -88,7 +93,8 @@ DataFrame export is available through the optional `dataframe` extra.
 
 `adaptcompile.compiler` combines an `AdaptationDataset` with externally supplied
 numeric decision-time descriptors to produce a validated supervised dataset.
-Feature extraction and prediction remain external in 0.2.
+Feature extraction remains external. Version 0.3 can fit a predictor over the
+assembled numeric features.
 
 ```python
 from adaptcompile.compiler import build_compiler_dataset
@@ -105,15 +111,39 @@ print(compiler_data.feature_names)
 See the [compiler data contract](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/compiler-data.md)
 for descriptor identities, namespaces, baseline features, and validation rules.
 
+## Predicting geometry
+
+The dependency-free `GeometryPredictor` protocol defines target-free prediction from
+compiler features and candidate identity. `RidgeGeometryPredictor` is one optional,
+deliberately simple reference implementation:
+
+```python
+from adaptcompile.compiler.predictors import RidgeGeometryPredictor
+
+predictor = RidgeGeometryPredictor().fit(compiler_data)
+prediction = predictor.predict(
+    features=compiler_data[0].features,
+    model_key=compiler_data[0].model_key,
+    episode_key=compiler_data[0].episode_key,
+    family_fingerprint=compiler_data[0].family_fingerprint,
+    program_fingerprint=compiler_data[0].program_fingerprint,
+)
+print(prediction.predicted_geometry)
+```
+
+See [prediction](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/prediction.md)
+for target semantics and delta reconstruction.
+
 ## What adaptcompile does not do
 
-- It does not train or load models.
+- It does not train or load adapted models.
 - It does not implement LoRA or replace PEFT, TRL, or another training framework.
-- It does not currently predict outcomes or select adaptation programs.
-- It has no mandatory ML-framework or numerical-stack dependencies; pandas is optional for DataFrame export.
+- It does not select adaptation programs or execute adaptations.
+- It has no mandatory ML-framework or numerical-stack dependencies; pandas and the
+  scikit-learn reference predictor are optional extras.
 
 ## Status
 
-`0.2.0` adds compiler-ready supervised data assembly. The API is usable but may
-evolve during the `0.x` series. The package does not extract features, fit models,
-predict outcomes, or select programs.
+`0.3.0` adds target-free prediction of adaptation geometry from compiler-ready
+features. The API is usable but may evolve during the `0.x` series. The package does
+not extract features, execute adaptations, or select programs.

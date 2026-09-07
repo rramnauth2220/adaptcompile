@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaptcompile"
-version = "0.2.0"
-description = "Represent, measure, and compare the behavioral effects of model adaptation."
+version = "0.3.0"
+description = "Represent, measure, compare, and predict model adaptation geometry."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -26,6 +26,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dataframe = ["pandas>=1.5"]
+predict = ["scikit-learn>=1.2"]
 dev = [
     "build>=1.2",
     "mypy>=1.8",
@@ -33,6 +34,7 @@ dev = [
     "pandas-stubs>=1.5",
     "pytest>=7",
     "ruff>=0.4",
+    "scikit-learn>=1.2",
     "twine>=5",
 ]
 

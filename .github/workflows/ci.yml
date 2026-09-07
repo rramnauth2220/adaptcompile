@@ -22,7 +22,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[dataframe]" pytest
+      - run: python -m pip install -e ".[dataframe,predict]" pytest
       - run: python -m pytest
 
   quality:
@@ -41,6 +41,7 @@ jobs:
       - run: python examples/basic_comparison.py
       - run: python examples/from_experiment_results.py
       - run: python examples/compiler_dataset.py
+      - run: python examples/predict_geometry.py
 
   build:
     needs: [tests, quality]
@@ -74,7 +75,9 @@ jobs:
           name: distributions
           path: dist
       - run: python .github/scripts/install_distribution.py wheel --no-deps
-      - run: python .github/scripts/smoke_install.py --assert-no-pandas
+      - run: >-
+          python .github/scripts/smoke_install.py
+          --assert-no-pandas --assert-no-sklearn
 
   wheel-dataframe:
     needs: build
@@ -91,6 +94,25 @@ jobs:
       - run: python .github/scripts/install_distribution.py wheel --extra dataframe
       - run: python .github/scripts/smoke_install.py --dataframe
 
+  wheel-predict:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: distributions
+          path: dist
+      - run: python .github/scripts/install_distribution.py wheel --extra predict
+      - run: python .github/scripts/smoke_install.py --predict
+
   sdist-core:
     needs: build
     runs-on: ubuntu-latest
@@ -104,4 +126,32 @@ jobs:
           name: distributions
           path: dist
       - run: python .github/scripts/install_distribution.py sdist --no-deps
-      - run: python .github/scripts/smoke_install.py --assert-no-pandas
+      - run: >-
+          python .github/scripts/smoke_install.py
+          --assert-no-pandas --assert-no-sklearn
+
+  source-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - run: python -m pip install .
+      - run: >-
+          python .github/scripts/smoke_install.py
+          --assert-no-pandas --assert-no-sklearn
+
+  source-predict:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install ".[predict]"
+      - run: python .github/scripts/smoke_install.py --predict

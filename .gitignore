@@ -6,6 +6,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+pypi-*-test/
 test-install/
 build/
 dist/

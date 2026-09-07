@@ -2,6 +2,17 @@
 
 All notable public changes to this project are documented here.
 
+## 0.3.0 - 2026-09-07
+
+### Added
+
+- Immutable `GeometryPrediction` values.
+- Dependency-free `GeometryPredictor` structural protocol.
+- Target-free prediction from validated compiler features and candidate identity.
+- Post-adaptation geometry reconstruction for delta targets using baseline features.
+- Optional `RidgeGeometryPredictor` multi-output reference implementation.
+- `predict` dependency extra for scikit-learn-backed prediction.
+
 ## 0.2.0 - 2026-09-06
 
 ### Added

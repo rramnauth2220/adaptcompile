@@ -71,6 +71,8 @@ def test_compiler_public_api_is_small_and_not_root_reexported() -> None:
     assert set(compiler.__all__) == {
         "CompilerDataset",
         "CompilerRecord",
+        "GeometryPrediction",
+        "GeometryPredictor",
         "build_compiler_dataset",
     }
     assert compiler.CompilerRecord is CompilerRecord

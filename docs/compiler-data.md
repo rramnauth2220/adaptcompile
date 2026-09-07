@@ -2,7 +2,8 @@
 
 `adaptcompile.compiler` turns observed `AdaptationResult` objects into a validated
 supervised corpus. It joins an `AdaptationDataset` with numeric descriptors computed
-by the caller. The package does not compute descriptors or fit a predictor.
+by the caller. The compiler-data builder does not compute descriptors or fit a
+predictor; prediction is a separate layer described in [prediction](prediction.md).
 
 ## Data stages
 
@@ -92,6 +93,6 @@ compiler_data = build_compiler_dataset(
 )
 ```
 
-`adaptcompile 0.2.0` assembles compiler-ready supervised data. It does not extract
-features, train predictors, split datasets, predict adaptation outcomes, or select
-programs.
+The compiler data contract assembles supervised data and does not extract features,
+split datasets, or select programs. Version 0.3 predictors consume this contract
+without changing its representation or joining semantics.
