@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use adaptcompile in your research, please cite this software."
 title: "adaptcompile"
 type: software
-version: 0.5.0
+version: 0.6.0
 date-released: 2026-09-07
 license: MIT
 authors:

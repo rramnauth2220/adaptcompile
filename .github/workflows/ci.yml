@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   core-contract-tests:
-    name: Core selection/execution tests (Python ${{ matrix.python-version }})
+    name: Core selection/execution/evaluation tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -27,7 +27,9 @@ jobs:
           python -c "import importlib.util;
           modules = ('pandas', 'numpy', 'sklearn', 'torch', 'transformers', 'peft');
           assert all(importlib.util.find_spec(name) is None for name in modules)"
-      - run: python -m pytest tests/test_selection.py tests/test_execution.py
+      - run: >-
+          python -m pytest
+          tests/test_selection.py tests/test_execution.py tests/test_evaluation.py
 
   tests:
     name: Tests (Python ${{ matrix.python-version }})
@@ -65,6 +67,7 @@ jobs:
       - run: python examples/predict_geometry.py
       - run: python examples/select_program.py
       - run: python examples/execute_selection.py
+      - run: python examples/evaluate_execution.py
 
   build:
     needs: [core-contract-tests, tests, quality]
@@ -101,7 +104,7 @@ jobs:
       - run: >-
           python .github/scripts/smoke_install.py
           --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
-          --selection --execution
+          --selection --execution --evaluation
 
   wheel-dataframe:
     needs: build
@@ -153,7 +156,7 @@ jobs:
       - run: >-
           python .github/scripts/smoke_install.py
           --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
-          --selection --execution
+          --selection --execution --evaluation
 
   source-core:
     runs-on: ubuntu-latest
@@ -166,7 +169,7 @@ jobs:
       - run: >-
           python .github/scripts/smoke_install.py
           --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
-          --selection --execution
+          --selection --execution --evaluation
 
   source-predict:
     runs-on: ubuntu-latest

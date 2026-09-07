@@ -2,6 +2,18 @@
 
 All notable public changes to this project are documented here.
 
+## 0.6.0 - 2026-09-07
+
+### Added
+
+- Dependency-free generic `AdaptationEvaluator` structural protocol.
+- Immutable, serializable `EvaluationRecord` provenance.
+- Runtime-free `EvaluationOutcome` pairing a measured result with its record.
+- `evaluate_execution()` with explicit before-geometry and pre-evaluation contract
+  validation.
+- `CallableEvaluator` reference implementation.
+- Explicit conversion from measured post-execution geometry to `AdaptationResult`.
+
 ## 0.5.0 - 2026-09-07
 
 ### Added

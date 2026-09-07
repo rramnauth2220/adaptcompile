@@ -37,6 +37,8 @@ SDIST_ROOT_FILES = {
 }
 PACKAGE_FILES = {
     "src/adaptcompile/__init__.py",
+    "src/adaptcompile/_execution.py",
+    "src/adaptcompile/_identity.py",
     "src/adaptcompile/_validation.py",
     "src/adaptcompile/compiler/__init__.py",
     "src/adaptcompile/compiler/data.py",
@@ -47,6 +49,9 @@ PACKAGE_FILES = {
     "src/adaptcompile/execution/__init__.py",
     "src/adaptcompile/execution/backends.py",
     "src/adaptcompile/execution/core.py",
+    "src/adaptcompile/evaluation/__init__.py",
+    "src/adaptcompile/evaluation/core.py",
+    "src/adaptcompile/evaluation/evaluators.py",
     "src/adaptcompile/dataset.py",
     "src/adaptcompile/episode.py",
     "src/adaptcompile/errors.py",
@@ -65,12 +70,14 @@ SDIST_PUBLIC_FILES = {
     "docs/prediction.md",
     "docs/selection.md",
     "docs/execution.md",
+    "docs/evaluation.md",
     "examples/basic_comparison.py",
     "examples/compiler_dataset.py",
     "examples/from_experiment_results.py",
     "examples/predict_geometry.py",
     "examples/select_program.py",
     "examples/execute_selection.py",
+    "examples/evaluate_execution.py",
     "tests/conftest.py",
     "tests/integration/test_compiler_dataset.py",
     "tests/integration/test_experiment_slice.py",
@@ -78,6 +85,7 @@ SDIST_PUBLIC_FILES = {
     "tests/integration/test_prediction_integration.py",
     "tests/integration/test_selection_integration.py",
     "tests/integration/test_execution_integration.py",
+    "tests/integration/test_evaluation_integration.py",
     "tests/test_compiler.py",
     "tests/test_dataset.py",
     "tests/test_episode.py",
@@ -91,6 +99,7 @@ SDIST_PUBLIC_FILES = {
     "tests/test_ridge_predictor.py",
     "tests/test_selection.py",
     "tests/test_execution.py",
+    "tests/test_evaluation.py",
     "tests/test_serialization.py",
     "tests/test_study.py",
 }
@@ -140,6 +149,8 @@ def check_wheel(path: Path) -> None:
             _check_text(name, archive.read(name))
     required = {
         "adaptcompile/__init__.py",
+        "adaptcompile/_execution.py",
+        "adaptcompile/_identity.py",
         "adaptcompile/compiler/__init__.py",
         "adaptcompile/compiler/data.py",
         "adaptcompile/compiler/prediction.py",
@@ -149,6 +160,9 @@ def check_wheel(path: Path) -> None:
         "adaptcompile/execution/__init__.py",
         "adaptcompile/execution/backends.py",
         "adaptcompile/execution/core.py",
+        "adaptcompile/evaluation/__init__.py",
+        "adaptcompile/evaluation/core.py",
+        "adaptcompile/evaluation/evaluators.py",
         "adaptcompile/py.typed",
     }
     missing = required.difference(names)

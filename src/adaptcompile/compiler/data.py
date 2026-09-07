@@ -8,6 +8,12 @@ from numbers import Real
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias, cast, overload
 
+from .._identity import (
+    _validate_episode_key as _validate_episode_key,
+)
+from .._identity import (
+    _validate_model_key as _validate_model_key,
+)
 from .._validation import nonempty_name, score
 from ..dataset import AdaptationDataset, ModelIdentityKey
 from ..episode import EpisodeIdentityKey
@@ -63,27 +69,6 @@ def _validated_feature_mapping(value: Any) -> Mapping[str, float]:
     return MappingProxyType(
         dict(sorted(normalized.items(), key=lambda item: _feature_sort_key(item[0])))
     )
-
-
-def _validate_model_key(value: Any) -> ModelIdentityKey:
-    if not isinstance(value, tuple) or len(value) != 3:
-        raise ValidationError("model_key must be a ModelContext identity tuple")
-    model_id, revision, base_state_id = value
-    nonempty_name(model_id, field="model_key model_id")
-    for name, item in (("revision", revision), ("base_state_id", base_state_id)):
-        if item is not None:
-            nonempty_name(item, field=f"model_key {name}")
-    return cast(ModelIdentityKey, value)
-
-
-def _validate_episode_key(value: Any) -> EpisodeIdentityKey:
-    if not isinstance(value, tuple) or len(value) != 2:
-        raise ValidationError("episode_key must be a LearningEpisode identity tuple")
-    kind, identity = value
-    if kind not in {"episode_id", "configuration"}:
-        raise ValidationError("episode_key has an unknown identity kind")
-    nonempty_name(identity, field="episode_key identity")
-    return cast(EpisodeIdentityKey, value)
 
 
 @dataclass(frozen=True)

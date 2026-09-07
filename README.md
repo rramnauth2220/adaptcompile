@@ -1,11 +1,11 @@
 # adaptcompile
 
 `adaptcompile` is a model-agnostic Python library for representing, measuring,
-predicting, selecting, and executing model adaptations through pluggable backends.
+predicting, selecting, executing, and evaluating model adaptations.
 
 `adaptcompile` treats model adaptation as a behavioral transformation that can be
-represented, measured, predicted, selected, and handed to a user-supplied execution
-backend independently of any training framework.
+represented, predicted, selected, executed, and measured independently of any
+training or evaluation framework.
 
 See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
 together.
@@ -93,8 +93,8 @@ DataFrame export is available through the optional `dataframe` extra.
 
 `adaptcompile.compiler` combines an `AdaptationDataset` with externally supplied
 numeric decision-time descriptors to produce a validated supervised dataset.
-Feature extraction remains external. Version 0.3 can fit a predictor over the
-assembled numeric features.
+Feature extraction remains external. The prediction layer can fit a predictor
+over the assembled numeric features.
 
 ```python
 from adaptcompile.compiler import build_compiler_dataset
@@ -176,17 +176,39 @@ outcome = execute_selection(
 See [execution](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/execution.md)
 for program resolution, provenance, mutation, and framework-boundary semantics.
 
+## Evaluating an execution
+
+Evaluation measures the adapted runtime through a user-supplied evaluator and creates
+an observed `AdaptationResult`. The caller supplies measured before-geometry
+explicitly; after-geometry comes only from the evaluator.
+
+```python
+from adaptcompile.evaluation import evaluate_execution
+from adaptcompile.evaluation.evaluators import CallableEvaluator
+
+evaluation = evaluate_execution(
+    outcome,
+    evaluator=CallableEvaluator(measure, evaluator_id="custom"),
+    model_context=model_context,
+    episode=episode,
+    before=before_geometry,
+)
+```
+
+See [evaluation](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/evaluation.md)
+for prediction-versus-observation semantics and evaluation provenance.
+
 ## What adaptcompile does not do
 
 - It does not implement model training or model loading.
 - It does not implement LoRA or replace PEFT, TRL, or another training framework.
-- It does not infer objectives, synthesize programs, evaluate adaptations, or
-  interpret program parameters in the core package.
+- It does not infer objectives, synthesize programs, infer metrics, or interpret
+  program parameters in the core package.
 - It has no mandatory ML-framework or numerical-stack dependencies; pandas and the
   scikit-learn reference predictor are optional extras.
 
 ## Status
 
-`0.5.0` adds selected-program resolution and pluggable execution. The API is usable
-but may evolve during the `0.x` series. Execution is delegated to user-supplied
-backends; the core package remains framework-agnostic and does not evaluate outcomes.
+`0.6.0` adds pluggable post-execution evaluation and explicit conversion of measured
+behavior into observations. The API is usable but may evolve during the `0.x` series.
+Execution and measurement remain delegated to user-supplied plugins.

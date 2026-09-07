@@ -29,6 +29,13 @@ from adaptcompile.compiler import (
 )
 from adaptcompile.compiler.predictors import RidgeGeometryPredictor
 from adaptcompile.compiler.selectors import LinearUtilitySelector
+from adaptcompile.evaluation import (
+    AdaptationEvaluator,
+    EvaluationOutcome,
+    EvaluationRecord,
+    evaluate_execution,
+)
+from adaptcompile.evaluation.evaluators import CallableEvaluator
 from adaptcompile.execution import (
     AdaptationBackend,
     ExecutionOutcome,
@@ -45,11 +52,12 @@ def main() -> None:
     parser.add_argument("--predict", action="store_true")
     parser.add_argument("--selection", action="store_true")
     parser.add_argument("--execution", action="store_true")
+    parser.add_argument("--evaluation", action="store_true")
     parser.add_argument("--assert-no-sklearn", action="store_true")
     parser.add_argument("--assert-no-frameworks", action="store_true")
     arguments = parser.parse_args()
 
-    if version("adaptcompile") != "0.5.0" or adaptcompile.__version__ != "0.5.0":
+    if version("adaptcompile") != "0.6.0" or adaptcompile.__version__ != "0.6.0":
         raise SystemExit("unexpected installed adaptcompile version")
     if hasattr(adaptcompile, "CompilerDataset"):
         raise SystemExit("compiler API must not be re-exported from the package root")
@@ -69,6 +77,8 @@ def main() -> None:
         raise SystemExit("unexpected selection protocol")
     if AdaptationBackend.__name__ != "AdaptationBackend":
         raise SystemExit("unexpected execution protocol")
+    if AdaptationEvaluator.__name__ != "AdaptationEvaluator":
+        raise SystemExit("unexpected evaluation protocol")
 
     model = ModelContext("synthetic/model", "v1", "base")
     episode = LearningEpisode("synthetic", [], {"accuracy": []}, episode_id="e1")
@@ -127,7 +137,7 @@ def main() -> None:
             + prediction.predicted_target["accuracy"],
         ):
             raise SystemExit("delta prediction did not reconstruct from baseline")
-    if arguments.selection or arguments.execution:
+    if arguments.selection or arguments.execution or arguments.evaluation:
         first_geometry = AdaptationGeometry({"accuracy": 0.6, "cost": 1.0})
         second_geometry = AdaptationGeometry({"accuracy": 0.9, "cost": 3.0})
         alternative = ProgramSpec("large", "adapter", {"rank": 8})
@@ -164,7 +174,7 @@ def main() -> None:
             raise SystemExit("selector did not return a feasible candidate")
         if selection.selected.prediction is not predictions[0]:
             raise SystemExit("selector ignored a hard constraint")
-        if arguments.execution:
+        if arguments.execution or arguments.evaluation:
             calls: list[ProgramSpec] = []
 
             def execute(
@@ -199,6 +209,38 @@ def main() -> None:
                 )
             if outcome.model != {"value": 5.0}:
                 raise SystemExit("callable backend returned an unexpected runtime")
+            if arguments.evaluation:
+                evaluation_calls: list[ProgramSpec] = []
+
+                def evaluate(
+                    runtime: dict[str, float],
+                    *,
+                    model_context: ModelContext,
+                    episode: LearningEpisode,
+                    program: ProgramSpec,
+                ) -> AdaptationGeometry:
+                    evaluation_calls.append(program)
+                    return AdaptationGeometry({"accuracy": runtime["value"]})
+
+                measured = evaluate_execution(
+                    outcome,
+                    evaluator=CallableEvaluator(
+                        evaluate, evaluator_id="synthetic-measurement"
+                    ),
+                    model_context=model,
+                    episode=episode,
+                    before=AdaptationGeometry({"accuracy": 1.0}),
+                )
+                if not isinstance(measured, EvaluationOutcome):
+                    raise SystemExit("evaluation returned the wrong outcome type")
+                if not isinstance(measured.record, EvaluationRecord):
+                    raise SystemExit("evaluation returned the wrong record type")
+                if evaluation_calls != [program]:
+                    raise SystemExit("evaluator did not run exactly once")
+                if measured.result.after["accuracy"] != 5.0:
+                    raise SystemExit("evaluation did not preserve measured geometry")
+                if measured.record.backend_id != "synthetic-callable":
+                    raise SystemExit("evaluation lost execution backend provenance")
 
 
 if __name__ == "__main__":

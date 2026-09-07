@@ -1,40 +1,52 @@
 # Architecture
 
-`adaptcompile` separates experiment identity, executable declarations, measurements,
-and collections. Runtime adaptation mechanics remain delegated to pluggable backends.
+`adaptcompile` separates experiment identity, executable declarations, predictions,
+runtime execution, and measured observations. Runtime mechanics and measurement
+procedures remain delegated to pluggable components.
 
 ```text
-ModelContext + LearningEpisode + ProgramSpec
-                                |
-                                v
-                        AdaptationResult
-                         /             \
-                        v               v
-               AdaptationStudy   AdaptationDataset
-                                         |
-                         external numeric descriptors
-                                         |
-                                         v
-                                CompilerDataset
-                                         |
-                                GeometryPredictor
-                                         |
-                                         v
-                              GeometryPrediction(s)
-                                         |
-                               SelectionObjective
-                                         |
-                                  ProgramSelector
-                                         |
-                                         v
-                                 ProgramSelection
-                                         |
-                              resolve ProgramSpec
-                                         |
-                               AdaptationBackend
-                                         |
-                                         v
-                                ExecutionOutcome
+LearningEpisode + ModelContext + ProgramSpec
+                    |
+                    v
+            AdaptationResult
+             /             \
+            v               v
+   AdaptationStudy   AdaptationDataset
+                             |
+             external numeric descriptors
+                             |
+                             v
+                    CompilerDataset
+                             |
+                    GeometryPredictor
+                             |
+                             v
+                  GeometryPrediction(s)
+                             |
+                   SelectionObjective
+                             |
+                      ProgramSelector
+                             |
+                             v
+                     ProgramSelection
+                             |
+                  resolve ProgramSpec
+                             |
+                   AdaptationBackend
+                             |
+                             v
+                    ExecutionOutcome
+                             |
+                  AdaptationEvaluator
+                             |
+                             v
+                    EvaluationOutcome
+                             |
+                             v
+       AdaptationResult (new measured observation)
+                             |
+                             v
+                    AdaptationDataset
 ```
 
 - `ModelContext` identifies the pre-adaptation model, revision, and base state.
@@ -68,15 +80,20 @@ ModelContext + LearningEpisode + ProgramSpec
   runtime object, model context, episode, and exact program.
 - `ExecutionOutcome` pairs the opaque backend-owned runtime result with a compact,
   serializable `ExecutionRecord`.
+- `AdaptationEvaluator` measures the opaque adapted runtime and returns actual
+  post-adaptation geometry.
+- `EvaluationOutcome` pairs a genuine measured `AdaptationResult` with a compact,
+  serializable `EvaluationRecord` carrying backend and evaluator provenance.
 
 Names and metadata remain descriptive annotations. Stable identity is explicit:
 model studies use `(model_id, revision, base_state_id)`, episodes may supply an
 `episode_id`, and program/family fingerprints derive from their semantic parameters.
 
 Descriptor extraction is external: the package validates and joins numeric mappings
-but does not inspect models or datasets. Version 0.5 delegates execution to pluggable
-backends and stops before evaluation or measurement.
+but does not inspect models or datasets. Execution and evaluation are separate
+pluggable boundaries.
 
-`ExecutionOutcome` does not automatically become an `AdaptationResult`. Execution
-does not supply measured before/after geometry; a caller must perform an explicit
-evaluation and measurement step before creating a new observation.
+`ExecutionOutcome` does not automatically become an `AdaptationResult`.
+`evaluate_execution()` requires explicit measured before-geometry and obtains
+after-geometry only from an evaluator. It never copies a `GeometryPrediction` into an
+observation. Dataset insertion remains an explicit caller action.

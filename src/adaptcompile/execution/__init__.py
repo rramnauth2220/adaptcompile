@@ -1,11 +1,7 @@
 """Framework-neutral selected-program execution."""
 
-from .core import (
-    AdaptationBackend,
-    ExecutionOutcome,
-    ExecutionRecord,
-    execute_selection,
-)
+from .._execution import ExecutionOutcome, ExecutionRecord
+from .core import AdaptationBackend, execute_selection
 
 __all__ = [
     "AdaptationBackend",

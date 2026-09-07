@@ -73,7 +73,8 @@ does not inspect or serialize it.
 Executing a program does not establish measured behavioral improvement.
 `ExecutionOutcome` is not an `AdaptationResult`, and predicted geometry is never
 copied into observed after-geometry. A caller must separately evaluate and measure
-the adapted runtime before constructing a new observation.
+the adapted runtime before constructing a new observation. Version 0.6 provides that
+explicit boundary through [`evaluate_execution()`](evaluation.md).
 
-Version 0.5 includes no framework backend, model loading, evaluation, retries,
-rollback, persistence, remote execution, or experiment orchestration.
+The execution layer itself includes no framework backend, model loading, measurement,
+retries, rollback, persistence, remote execution, or experiment orchestration.
