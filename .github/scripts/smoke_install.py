@@ -29,6 +29,13 @@ from adaptcompile.compiler import (
 )
 from adaptcompile.compiler.predictors import RidgeGeometryPredictor
 from adaptcompile.compiler.selectors import LinearUtilitySelector
+from adaptcompile.execution import (
+    AdaptationBackend,
+    ExecutionOutcome,
+    ExecutionRecord,
+    execute_selection,
+)
+from adaptcompile.execution.backends import CallableBackend
 
 
 def main() -> None:
@@ -37,10 +44,12 @@ def main() -> None:
     parser.add_argument("--assert-no-pandas", action="store_true")
     parser.add_argument("--predict", action="store_true")
     parser.add_argument("--selection", action="store_true")
+    parser.add_argument("--execution", action="store_true")
     parser.add_argument("--assert-no-sklearn", action="store_true")
+    parser.add_argument("--assert-no-frameworks", action="store_true")
     arguments = parser.parse_args()
 
-    if version("adaptcompile") != "0.4.0" or adaptcompile.__version__ != "0.4.0":
+    if version("adaptcompile") != "0.5.0" or adaptcompile.__version__ != "0.5.0":
         raise SystemExit("unexpected installed adaptcompile version")
     if hasattr(adaptcompile, "CompilerDataset"):
         raise SystemExit("compiler API must not be re-exported from the package root")
@@ -48,10 +57,18 @@ def main() -> None:
         raise SystemExit("core smoke environment unexpectedly contains pandas")
     if arguments.assert_no_sklearn and importlib.util.find_spec("sklearn") is not None:
         raise SystemExit("core smoke environment unexpectedly contains scikit-learn")
+    if arguments.assert_no_frameworks:
+        for module_name in ("numpy", "torch", "transformers", "peft"):
+            if importlib.util.find_spec(module_name) is not None:
+                raise SystemExit(
+                    f"core smoke environment unexpectedly contains {module_name}"
+                )
     if GeometryPredictor.__name__ != "GeometryPredictor":
         raise SystemExit("unexpected prediction protocol")
     if ProgramSelector.__name__ != "ProgramSelector":
         raise SystemExit("unexpected selection protocol")
+    if AdaptationBackend.__name__ != "AdaptationBackend":
+        raise SystemExit("unexpected execution protocol")
 
     model = ModelContext("synthetic/model", "v1", "base")
     episode = LearningEpisode("synthetic", [], {"accuracy": []}, episode_id="e1")
@@ -110,9 +127,10 @@ def main() -> None:
             + prediction.predicted_target["accuracy"],
         ):
             raise SystemExit("delta prediction did not reconstruct from baseline")
-    if arguments.selection:
+    if arguments.selection or arguments.execution:
         first_geometry = AdaptationGeometry({"accuracy": 0.6, "cost": 1.0})
         second_geometry = AdaptationGeometry({"accuracy": 0.9, "cost": 3.0})
+        alternative = ProgramSpec("large", "adapter", {"rank": 8})
         predictions = (
             GeometryPrediction(
                 model_key=model.identity_key,
@@ -127,7 +145,7 @@ def main() -> None:
                 model_key=model.identity_key,
                 episode_key=episode.identity_key,
                 family_fingerprint=None,
-                program_fingerprint="synthetic-alternative",
+                program_fingerprint=alternative.fingerprint,
                 predicted_target=second_geometry,
                 predicted_geometry=second_geometry,
                 target_kind="after",
@@ -146,6 +164,41 @@ def main() -> None:
             raise SystemExit("selector did not return a feasible candidate")
         if selection.selected.prediction is not predictions[0]:
             raise SystemExit("selector ignored a hard constraint")
+        if arguments.execution:
+            calls: list[ProgramSpec] = []
+
+            def execute(
+                runtime: dict[str, float],
+                *,
+                model_context: ModelContext,
+                episode: LearningEpisode,
+                program: ProgramSpec,
+            ) -> dict[str, float]:
+                calls.append(program)
+                return {"value": runtime["value"] + program.parameters["rank"]}
+
+            outcome = execute_selection(
+                selection,
+                programs=(program, alternative),
+                model={"value": 1.0},
+                model_context=model,
+                episode=episode,
+                backend=CallableBackend(
+                    execute,
+                    backend_id="synthetic-callable",
+                    supports=lambda candidate: candidate.method == "adapter",
+                ),
+            )
+            if not isinstance(outcome, ExecutionOutcome):
+                raise SystemExit("execution returned the wrong outcome type")
+            if not isinstance(outcome.record, ExecutionRecord):
+                raise SystemExit("execution returned the wrong record type")
+            if calls != [program] or outcome.record.program is not program:
+                raise SystemExit(
+                    "execution did not resolve exactly one selected program"
+                )
+            if outcome.model != {"value": 5.0}:
+                raise SystemExit("callable backend returned an unexpected runtime")
 
 
 if __name__ == "__main__":

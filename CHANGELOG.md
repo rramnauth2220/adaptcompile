@@ -2,6 +2,17 @@
 
 All notable public changes to this project are documented here.
 
+## 0.5.0 - 2026-09-07
+
+### Added
+
+- Dependency-free generic `AdaptationBackend` structural protocol.
+- Immutable, serializable `ExecutionRecord` provenance.
+- In-memory generic `ExecutionOutcome` runtime wrapper.
+- `execute_selection()` with explicit selected-`ProgramSpec` resolution and identity
+  validation.
+- `CallableBackend` reference implementation.
+
 ## 0.4.0 - 2026-09-07
 
 ### Added

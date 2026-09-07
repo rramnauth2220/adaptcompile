@@ -2,7 +2,8 @@
 
 Version 0.4 adds explicit selection over a finite set of predicted candidate
 adaptations. Selection consumes `GeometryPrediction` objects and returns a ranked
-`ProgramSelection`; it does not execute or synthesize programs.
+`ProgramSelection`; the selection layer itself does not execute or synthesize
+programs.
 
 ## Why selection uses predicted geometry
 
@@ -57,4 +58,6 @@ utility ties preserve input order.
 `LinearUtilitySelector` is a transparent reference implementation of the
 `ProgramSelector` interface, not a prescribed decision rule. Objective inference,
 Pareto optimization, learned or uncertainty-aware selection, feature extraction,
-program synthesis, and adaptation execution are outside version 0.4.
+program synthesis, and adaptation execution are outside the selection layer.
+Selected-program execution is a separate boundary described in
+[execution](execution.md).

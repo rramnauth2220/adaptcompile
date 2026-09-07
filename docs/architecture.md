@@ -1,7 +1,7 @@
 # Architecture
 
 `adaptcompile` separates experiment identity, executable declarations, measurements,
-and collections. It does not execute adaptations.
+and collections. Runtime adaptation mechanics remain delegated to pluggable backends.
 
 ```text
 ModelContext + LearningEpisode + ProgramSpec
@@ -28,6 +28,13 @@ ModelContext + LearningEpisode + ProgramSpec
                                          |
                                          v
                                  ProgramSelection
+                                         |
+                              resolve ProgramSpec
+                                         |
+                               AdaptationBackend
+                                         |
+                                         v
+                                ExecutionOutcome
 ```
 
 - `ModelContext` identifies the pre-adaptation model, revision, and base state.
@@ -55,11 +62,21 @@ ModelContext + LearningEpisode + ProgramSpec
 - `ProgramSelector` evaluates a finite candidate set for one model and episode.
 - `ProgramSelection` stores all ranked candidate scores and the best feasible choice,
   if one exists.
+- Execution resolves the selected fingerprint against an explicit concrete
+  `ProgramSpec`; fingerprints alone are not executable specifications.
+- `AdaptationBackend` is a framework-neutral structural interface that receives the
+  runtime object, model context, episode, and exact program.
+- `ExecutionOutcome` pairs the opaque backend-owned runtime result with a compact,
+  serializable `ExecutionRecord`.
 
 Names and metadata remain descriptive annotations. Stable identity is explicit:
 model studies use `(model_id, revision, base_state_id)`, episodes may supply an
 `episode_id`, and program/family fingerprints derive from their semantic parameters.
 
 Descriptor extraction is external: the package validates and joins numeric mappings
-but does not inspect models or datasets. Version 0.4 adds explicit program selection
-and stops before program synthesis or adaptation execution.
+but does not inspect models or datasets. Version 0.5 delegates execution to pluggable
+backends and stops before evaluation or measurement.
+
+`ExecutionOutcome` does not automatically become an `AdaptationResult`. Execution
+does not supply measured before/after geometry; a caller must perform an explicit
+evaluation and measurement step before creating a new observation.

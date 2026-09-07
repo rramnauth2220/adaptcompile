@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  core-selection-tests:
-    name: Core selection tests (Python ${{ matrix.python-version }})
+  core-contract-tests:
+    name: Core selection/execution tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -25,9 +25,9 @@ jobs:
       - run: python -m pip install -e . pytest
       - run: >-
           python -c "import importlib.util;
-          assert importlib.util.find_spec('pandas') is None;
-          assert importlib.util.find_spec('sklearn') is None"
-      - run: python -m pytest tests/test_selection.py
+          modules = ('pandas', 'numpy', 'sklearn', 'torch', 'transformers', 'peft');
+          assert all(importlib.util.find_spec(name) is None for name in modules)"
+      - run: python -m pytest tests/test_selection.py tests/test_execution.py
 
   tests:
     name: Tests (Python ${{ matrix.python-version }})
@@ -64,9 +64,10 @@ jobs:
       - run: python examples/compiler_dataset.py
       - run: python examples/predict_geometry.py
       - run: python examples/select_program.py
+      - run: python examples/execute_selection.py
 
   build:
-    needs: [core-selection-tests, tests, quality]
+    needs: [core-contract-tests, tests, quality]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -99,7 +100,8 @@ jobs:
       - run: python .github/scripts/install_distribution.py wheel --no-deps
       - run: >-
           python .github/scripts/smoke_install.py
-          --assert-no-pandas --assert-no-sklearn --selection
+          --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
+          --selection --execution
 
   wheel-dataframe:
     needs: build
@@ -150,7 +152,8 @@ jobs:
       - run: python .github/scripts/install_distribution.py sdist --no-deps
       - run: >-
           python .github/scripts/smoke_install.py
-          --assert-no-pandas --assert-no-sklearn --selection
+          --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
+          --selection --execution
 
   source-core:
     runs-on: ubuntu-latest
@@ -162,7 +165,8 @@ jobs:
       - run: python -m pip install .
       - run: >-
           python .github/scripts/smoke_install.py
-          --assert-no-pandas --assert-no-sklearn --selection
+          --assert-no-pandas --assert-no-sklearn --assert-no-frameworks
+          --selection --execution
 
   source-predict:
     runs-on: ubuntu-latest

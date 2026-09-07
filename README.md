@@ -1,11 +1,11 @@
 # adaptcompile
 
 `adaptcompile` is a model-agnostic Python library for representing, measuring,
-predicting, and selecting model adaptations.
+predicting, selecting, and executing model adaptations through pluggable backends.
 
 `adaptcompile` treats model adaptation as a behavioral transformation that can be
-represented, measured, predicted, and selected independently of the training
-framework used to produce it.
+represented, measured, predicted, selected, and handed to a user-supplied execution
+backend independently of any training framework.
 
 See the [architecture overview](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/architecture.md) for how the objects fit
 together.
@@ -154,16 +154,39 @@ selection = LinearUtilitySelector().select(predictions, objective)
 See [selection](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/selection.md)
 for ranking, feasibility, and tie semantics.
 
+## Executing a selection
+
+Execution resolves the selected fingerprint against explicit concrete programs and
+delegates the matching `ProgramSpec` to a user-supplied backend:
+
+```python
+from adaptcompile.execution import execute_selection
+from adaptcompile.execution.backends import CallableBackend
+
+outcome = execute_selection(
+    selection,
+    programs=programs,
+    model=model,
+    model_context=model_context,
+    episode=episode,
+    backend=CallableBackend(handler, backend_id="custom"),
+)
+```
+
+See [execution](https://github.com/rramnauth2220/adaptcompile/blob/main/docs/execution.md)
+for program resolution, provenance, mutation, and framework-boundary semantics.
+
 ## What adaptcompile does not do
 
-- It does not train or load adapted models.
+- It does not implement model training or model loading.
 - It does not implement LoRA or replace PEFT, TRL, or another training framework.
-- It does not infer objectives, synthesize programs, or execute adaptations.
+- It does not infer objectives, synthesize programs, evaluate adaptations, or
+  interpret program parameters in the core package.
 - It has no mandatory ML-framework or numerical-stack dependencies; pandas and the
   scikit-learn reference predictor are optional extras.
 
 ## Status
 
-`0.4.0` adds explicit selection among predicted candidate adaptations. The API is
-usable but may evolve during the `0.x` series. The package does not infer objectives,
-extract features, synthesize programs, or execute adaptations.
+`0.5.0` adds selected-program resolution and pluggable execution. The API is usable
+but may evolve during the `0.x` series. Execution is delegated to user-supplied
+backends; the core package remains framework-agnostic and does not evaluate outcomes.
